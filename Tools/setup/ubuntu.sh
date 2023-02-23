@@ -254,6 +254,7 @@ if [[ $INSTALL_SIM == "true" ]]; then
 		libimage-exiftool-perl \
 		libopencv-dev \
 		libxml2-utils \
+		libignition-cmake2-dev \
 		pkg-config \
 		protobuf-compiler \
 		;
