@@ -89,3 +89,7 @@ rtps:
     send:    true
   - msg:     sensor_combined
     send:    true
+  - msg:     rc_channels
+    send:    true
+  - msg:     home_position
+    send:    true
