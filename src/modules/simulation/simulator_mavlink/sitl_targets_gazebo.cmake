@@ -29,8 +29,8 @@ if(parallel_jobs LESS 1)
 	set(parallel_jobs 1)
 endif()
 
-# message(DEBUG "${NUMBER_OF_LOGICAL_CORES} logical cores detected and ${AVAILABLE_PHYSICAL_MEMORY} megabytes of memory available.
-# 		Limiting sitl_gazebo concurrent jobs to ${parallel_jobs}")
+message(DEBUG "${NUMBER_OF_LOGICAL_CORES} logical cores detected and ${AVAILABLE_PHYSICAL_MEMORY} megabytes of memory available.
+		Limiting sitl_gazebo concurrent jobs to ${parallel_jobs}")
 
 # project to build sitl_gazebo if necessary
 px4_add_git_submodule(TARGET git_gazebo PATH "${PX4_SOURCE_DIR}/Tools/simulation/gazebo/sitl_gazebo")
@@ -95,6 +95,13 @@ set(models
 	typhoon_h480
 	uuv_bluerov2_heavy
 	uuv_hippocampus
+	grass_plane
+	hca_plane
+	Powerline_tempsetup
+	powerpylons
+	hca_temp_powerline
+	hcaa_pylon_setup
+	d4s_dc_drone
 )
 
 set(worlds
@@ -107,6 +114,14 @@ set(worlds
 	warehouse
 	windy
 	yosemite
+	d4e_airportsetup
+	d4e_environment
+	d4e_environment1
+	d4e_env_orientation_test
+	d4e_hca_airport
+	d4e_HCAairport
+	hca_full_pylon_setup
+	hca_full_setup
 )
 
 foreach(debugger ${debuggers})

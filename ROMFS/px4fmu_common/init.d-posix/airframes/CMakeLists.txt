@@ -80,6 +80,8 @@ px4_add_romfs_files(
 	17002_tf-g2
 	2507_cloudship
 
+	99999_d4s_dc_drone
+
 	6011_typhoon_h480
 	6011_typhoon_h480.post
 )
