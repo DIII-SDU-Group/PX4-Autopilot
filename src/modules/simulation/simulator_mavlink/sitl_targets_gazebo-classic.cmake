@@ -101,6 +101,13 @@ if(gazebo_FOUND)
 		typhoon_h480
 		uuv_bluerov2_heavy
 		uuv_hippocampus
+		grass_plane
+		hca_plane
+		Powerline_tempsetup
+		powerpylons
+		hca_temp_powerline
+		hcaa_pylon_setup
+		d4s_dc_drone
 	)
 
 	set(worlds
@@ -113,6 +120,14 @@ if(gazebo_FOUND)
 		warehouse
 		windy
 		yosemite
+		d4e_airportsetup
+		d4e_environment
+		d4e_environment1
+		d4e_env_orientation_test
+		d4e_hca_airport
+		d4e_HCAairport
+		hca_full_pylon_setup
+		hca_full_setup
 	)
 
 	# find corresponding airframes
