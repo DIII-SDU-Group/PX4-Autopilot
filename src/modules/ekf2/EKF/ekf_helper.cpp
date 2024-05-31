@@ -95,24 +95,12 @@ bool Ekf::setEkfGlobalOrigin(const double latitude, const double longitude, cons
 		_pos_ref.initReference(latitude, longitude, _time_delayed_us);
 		_gps_alt_ref = altitude;
 
-#if defined(CONFIG_EKF2_MAGNETOMETER)
-		const float mag_declination_gps = math::radians(get_mag_declination_degrees(latitude, longitude));
-		const float mag_inclination_gps = math::radians(get_mag_inclination_degrees(latitude, longitude));
-		const float mag_strength_gps = get_mag_strength_gauss(latitude, longitude);
-
-		if (PX4_ISFINITE(mag_declination_gps) && PX4_ISFINITE(mag_inclination_gps) && PX4_ISFINITE(mag_strength_gps)) {
-			_mag_declination_gps = mag_declination_gps;
-			_mag_inclination_gps = mag_inclination_gps;
-			_mag_strength_gps = mag_strength_gps;
-
-			_wmm_gps_time_last_set = _time_delayed_us;
-		}
-#endif // CONFIG_EKF2_MAGNETOMETER
-
 		_gpos_origin_eph = eph;
 		_gpos_origin_epv = epv;
 
 		_NED_origin_initialised = true;
+
+		_earth_rate_NED = calcEarthRateNED(math::radians(static_cast<float>(latitude)));
 
 		// minimum change in position or height that triggers a reset
 		static constexpr float MIN_RESET_DIST_M = 0.01f;

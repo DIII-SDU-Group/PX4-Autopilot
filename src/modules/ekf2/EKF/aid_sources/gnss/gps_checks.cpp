@@ -41,10 +41,6 @@
 
 #include "ekf.h"
 
-#if defined(CONFIG_EKF2_MAGNETOMETER)
-# include <lib/world_magnetic_model/geo_mag_declination.h>
-#endif // CONFIG_EKF2_MAGNETOMETER
-
 #include <mathlib/mathlib.h>
 
 // GPS pre-flight check bit locations
@@ -62,19 +58,17 @@ void Ekf::collect_gps(const gnssSample &gps)
 {
 	if (_filter_initialised && !_NED_origin_initialised && _gps_checks_passed) {
 		// If we have good GPS data set the origin's WGS-84 position to the last gps fix
-		const double lat = gps.lat;
-		const double lon = gps.lon;
+		//  force new origin if it was previously set early by rough 2d fix (_gpos_origin_eph > 0)
+		if (!_pos_ref.isInitialized() || (_gpos_origin_eph > 0.f)) {
+			_pos_ref.initReference(gps.lat, gps.lon, _time_delayed_us);
+		}
 
-		if (!_pos_ref.isInitialized()) {
-			_pos_ref.initReference(lat, lon, gps.time_us);
-
-			// if we are already doing aiding, correct for the change in position since the EKF started navigating
-			if (isHorizontalAidingActive()) {
-				double est_lat;
-				double est_lon;
-				_pos_ref.reproject(-_state.pos(0), -_state.pos(1), est_lat, est_lon);
-				_pos_ref.initReference(est_lat, est_lon, gps.time_us);
-			}
+		// if we are already doing aiding, correct for the change in position since the EKF started navigating
+		if (isHorizontalAidingActive()) {
+			double est_lat;
+			double est_lon;
+			_pos_ref.reproject(-_state.pos(0), -_state.pos(1), est_lat, est_lon);
+			_pos_ref.initReference(est_lat, est_lon, _time_delayed_us);
 		}
 
 		// Take the current GPS height and subtract the filter height above origin to estimate the GPS height of the origin
@@ -88,49 +82,32 @@ void Ekf::collect_gps(const gnssSample &gps)
 		_gpos_origin_eph = gps.hacc;
 		_gpos_origin_epv = gps.vacc;
 
+		_earth_rate_NED = calcEarthRateNED(math::radians(static_cast<float>(gps.lat)));
+
 		_information_events.flags.gps_checks_passed = true;
-		ECL_INFO("GPS checks passed");
-	}
 
-	if ((isTimedOut(_wmm_gps_time_last_checked, 1e6)) || (_wmm_gps_time_last_set == 0)) {
-		// a rough 2D fix is sufficient to lookup declination
-		const bool gps_rough_2d_fix = (gps.fix_type >= 2) && (gps.hacc < 1000);
+		ECL_INFO("GPS origin set to lat = %.6f, lon = %.6f",
+			 _pos_ref.getProjectionReferenceLat(), _pos_ref.getProjectionReferenceLon());
 
-		if (gps_rough_2d_fix && (_gps_checks_passed || !_NED_origin_initialised)) {
+	} else {
 
-			// If we have good GPS data set the origin's WGS-84 position to the last gps fix
-#if defined(CONFIG_EKF2_MAGNETOMETER)
+		if (!_NED_origin_initialised
+		    && isTimedOut(_pos_ref.getProjectionReferenceTimestamp(), 1e6)
+		   ) {
+			// a rough 2D fix is sufficient to lookup declination
+			const bool gps_rough_2d_fix = (gps.fix_type >= 2) && (gps.hacc < 1000);
 
-			// set the magnetic field data returned by the geo library using the current GPS position
-			const float mag_declination_gps = math::radians(get_mag_declination_degrees(gps.lat, gps.lon));
-			const float mag_inclination_gps = math::radians(get_mag_inclination_degrees(gps.lat, gps.lon));
-			const float mag_strength_gps = get_mag_strength_gauss(gps.lat, gps.lon);
+			if (gps_rough_2d_fix) {
 
-			if (PX4_ISFINITE(mag_declination_gps) && PX4_ISFINITE(mag_inclination_gps) && PX4_ISFINITE(mag_strength_gps)) {
+				_pos_ref.initReference(gps.lat, gps.lon, _time_delayed_us);
+				_gpos_origin_eph = gps.hacc;
 
-				const bool mag_declination_changed = (fabsf(mag_declination_gps - _mag_declination_gps) > math::radians(1.f));
-				const bool mag_inclination_changed = (fabsf(mag_inclination_gps - _mag_inclination_gps) > math::radians(1.f));
+				_earth_rate_NED = calcEarthRateNED(math::radians(static_cast<float>(gps.lat)));
 
-				if ((_wmm_gps_time_last_set == 0)
-				    || !PX4_ISFINITE(_mag_declination_gps)
-				    || !PX4_ISFINITE(_mag_inclination_gps)
-				    || !PX4_ISFINITE(_mag_strength_gps)
-				    || mag_declination_changed
-				    || mag_inclination_changed
-				   ) {
-					_mag_declination_gps = mag_declination_gps;
-					_mag_inclination_gps = mag_inclination_gps;
-					_mag_strength_gps = mag_strength_gps;
-
-					_wmm_gps_time_last_set = _time_delayed_us;
-				}
+				ECL_DEBUG("rough GPS origin reset to lat = %.6f, lon = %.6f",
+					  _pos_ref.getProjectionReferenceLat(), _pos_ref.getProjectionReferenceLon());
 			}
-#endif // CONFIG_EKF2_MAGNETOMETER
-
-			_earth_rate_NED = calcEarthRateNED((float)math::radians(gps.lat));
 		}
-
-		_wmm_gps_time_last_checked = _time_delayed_us;
 	}
 }
 

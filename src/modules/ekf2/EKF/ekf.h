@@ -449,6 +449,9 @@ public:
 #endif // CONFIG_EKF2_GNSS
 
 #if defined(CONFIG_EKF2_MAGNETOMETER)
+	// set the magnetic field data returned by the geo library using position
+	bool updateWorldMagneticModel(const double latitude_deg, const double longitude_deg);
+
 	const auto &aid_src_mag() const { return _aid_src_mag; }
 #endif // CONFIG_EKF2_MAGNETOMETER
 
@@ -759,8 +762,8 @@ private:
 	bool fuseMag(const Vector3f &mag, const float R_MAG, VectorState &H, estimator_aid_source3d_s &aid_src, bool update_all_states = false, bool update_tilt = false);
 
 	// fuse magnetometer declination measurement
-	// argument passed in is the declination uncertainty in radians
-	bool fuseDeclination(float decl_sigma);
+	//  declination uncertainty in radians
+	bool fuseDeclination(float decl_measurement_rad, float decl_sigma);
 
 #endif // CONFIG_EKF2_MAGNETOMETER
 

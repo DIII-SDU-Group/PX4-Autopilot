@@ -332,8 +332,7 @@ void Ekf::predictState(const imuSample &imu_delayed)
 
 void Ekf::resetGlobalPosToExternalObservation(double lat_deg, double lon_deg, float accuracy, uint64_t timestamp_observation)
 {
-
-	if (!_pos_ref.isInitialized()) {
+	if (!global_origin_valid()) {
 		return;
 	}
 
