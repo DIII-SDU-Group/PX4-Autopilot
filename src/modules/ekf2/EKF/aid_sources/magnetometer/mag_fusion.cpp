@@ -96,7 +96,8 @@ bool Ekf::fuseMag(const Vector3f &mag, const float R_MAG, VectorState &H, estima
 				resetQuatCov(_params.mag_heading_noise);
 			}
 
-			resetMagCov();
+			resetMagEarthCov();
+			resetMagBiasCov();
 
 			return false;
 		}
