@@ -203,6 +203,7 @@ set(msg_files
 	SensorsStatus.msg
 	SensorsStatusImu.msg
 	SensorUwb.msg
+	SimBatteryCharge.msg
 	SensorAirflow.msg
 	SystemPower.msg
 	TakeoffStatus.msg

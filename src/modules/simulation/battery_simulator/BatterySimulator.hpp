@@ -44,6 +44,7 @@
 #include <uORB/SubscriptionInterval.hpp>
 #include <uORB/topics/battery_status.h>
 #include <uORB/topics/parameter_update.h>
+#include <uORB/topics/sim_battery_charge.h>
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_command.h>
 #include <uORB/topics/vehicle_command_ack.h>
@@ -76,6 +77,7 @@ private:
 
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};
+	uORB::Subscription _sim_battery_charge_sub{ORB_ID(sim_battery_charge)};
 
 	uORB::Subscription _vehicle_command_sub{ORB_ID(vehicle_command)};
 	uORB::Publication<vehicle_command_ack_s> _command_ack_pub{ORB_ID(vehicle_command_ack)};
@@ -87,11 +89,17 @@ private:
 	bool _armed{false};
 
 	bool _force_empty_battery{false};
+	sim_battery_charge_s _sim_battery_charge{};
+	hrt_abstime _last_charge_input_us{0};
 
 	perf_counter_t	_loop_perf{perf_alloc(PC_ELAPSED, MODULE_NAME": cycle")};
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::SIM_BAT_DRAIN>) _param_sim_bat_drain, ///< battery drain interval
-		(ParamFloat<px4::params::SIM_BAT_MIN_PCT>) _param_bat_min_pct //< minimum battery percentage
+		(ParamFloat<px4::params::SIM_BAT_MIN_PCT>) _param_bat_min_pct, ///< minimum battery percentage
+		(ParamFloat<px4::params::SIM_BAT_CAP_WH>) _param_sim_bat_cap_wh, ///< battery capacity in Wh
+		(ParamFloat<px4::params::SIM_BAT_CHG_EFF>) _param_sim_bat_chg_eff, ///< charging efficiency
+		(ParamFloat<px4::params::SIM_BAT_CHG_MAX>) _param_sim_bat_chg_max, ///< max charging power
+		(ParamFloat<px4::params::SIM_BAT_CHG_TOUT>) _param_sim_bat_chg_tout ///< charging input timeout
 	)
 };

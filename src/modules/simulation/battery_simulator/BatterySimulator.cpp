@@ -82,11 +82,27 @@ void BatterySimulator::Run()
 
 	const hrt_abstime now_us = hrt_absolute_time();
 
+	if (_sim_battery_charge_sub.update(&_sim_battery_charge)) {
+		_last_charge_input_us = now_us;
+	}
+
 	const float discharge_interval_us = _param_sim_bat_drain.get() * 1000 * 1000;
 
 	if (_armed) {
 		if (_last_integration_us != 0) {
+			const float dt_s = (now_us - _last_integration_us) / 1e6f;
 			_battery_percentage -= (now_us - _last_integration_us) / discharge_interval_us;
+
+			const bool charge_input_fresh = _last_charge_input_us != 0
+							&& (now_us - _last_charge_input_us) <= static_cast<hrt_abstime>(_param_sim_bat_chg_tout.get() * 1e6f);
+
+			if (charge_input_fresh && _sim_battery_charge.charging_enabled) {
+				const float charge_power_w = math::constrain(
+					_sim_battery_charge.charging_power_w, 0.0f, _param_sim_bat_chg_max.get());
+				const float charge_energy_wh = charge_power_w * _param_sim_bat_chg_eff.get() * dt_s / 3600.0f;
+				const float capacity_wh = math::max(_param_sim_bat_cap_wh.get(), 1.0f);
+				_battery_percentage += charge_energy_wh / capacity_wh;
+			}
 		}
 
 		_last_integration_us = now_us;
@@ -98,7 +114,7 @@ void BatterySimulator::Run()
 
 	float ibatt = -1.0f; // no current sensor in simulation
 
-	_battery_percentage = math::max(_battery_percentage, _param_bat_min_pct.get() / 100.f);
+	_battery_percentage = math::constrain(_battery_percentage, _param_bat_min_pct.get() / 100.f, 1.0f);
 	float vbatt = math::interpolate(_battery_percentage, 0.f, 1.f, _battery.empty_cell_voltage(),
 					_battery.full_cell_voltage());
 
@@ -107,6 +123,15 @@ void BatterySimulator::Run()
 	}
 
 	vbatt *= _battery.cell_count();
+
+	const bool charge_input_fresh = _last_charge_input_us != 0
+					&& (now_us - _last_charge_input_us) <= static_cast<hrt_abstime>(_param_sim_bat_chg_tout.get() * 1e6f);
+
+	if (charge_input_fresh && _sim_battery_charge.charging_enabled && vbatt > 0.1f) {
+		const float charge_power_w = math::constrain(
+			_sim_battery_charge.charging_power_w, 0.0f, _param_sim_bat_chg_max.get());
+		ibatt = -charge_power_w / vbatt;
+	}
 
 	_battery.setConnected(true);
 	_battery.updateVoltage(vbatt);

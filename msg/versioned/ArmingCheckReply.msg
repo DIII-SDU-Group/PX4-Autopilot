@@ -31,4 +31,4 @@ bool mode_req_prevent_arming
 bool mode_req_manual_control
 
 
-uint8 ORB_QUEUE_LENGTH = 4
+uint8 ORB_QUEUE_LENGTH = 8

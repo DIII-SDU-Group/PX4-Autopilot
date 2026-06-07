@@ -69,3 +69,54 @@ PARAM_DEFINE_FLOAT(SIM_BAT_DRAIN, 60);
  * @group SITL
  */
 PARAM_DEFINE_FLOAT(SIM_BAT_MIN_PCT, 50.0f);
+
+/**
+ * Simulator Battery capacity.
+ *
+ * Capacity used when integrating external simulated charging power.
+ *
+ * @min 1
+ * @max 10000
+ * @increment 1
+ * @group SITL
+ */
+PARAM_DEFINE_FLOAT(SIM_BAT_CAP_WH, 130.0f);
+
+/**
+ * Simulator Battery charging efficiency.
+ *
+ * Fraction of simulated charging power that reaches the battery.
+ *
+ * @min 0
+ * @max 1
+ * @increment 0.01
+ *
+ * @group SITL
+ */
+PARAM_DEFINE_FLOAT(SIM_BAT_CHG_EFF, 0.9f);
+
+/**
+ * Simulator Battery maximum charging power.
+ *
+ * External simulated charging input is clamped to this value.
+ *
+ * @min 0
+ * @max 10000
+ * @increment 1
+ * @group SITL
+ */
+PARAM_DEFINE_FLOAT(SIM_BAT_CHG_MAX, 250.0f);
+
+/**
+ * Simulator Battery charging input timeout.
+ *
+ * External simulated charging input older than this timeout is ignored.
+ *
+ * @min 0.01
+ * @max 60
+ * @increment 0.01
+ * @unit s
+ *
+ * @group SITL
+ */
+PARAM_DEFINE_FLOAT(SIM_BAT_CHG_TOUT, 1.0f);
