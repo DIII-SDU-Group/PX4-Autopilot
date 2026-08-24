@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# @name Drones4Safety DC drone model
+#
+# @type Quadrotor Wide
+#
+# @maintainer Frederik Nyboe <ffn@sdu.dk>
+#
+
+. ${R}etc/init.d/rc.mc_defaults
+
+PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
+PX4_GZ_WORLD=${PX4_GZ_WORLD:=hca_full_pylon_setup}
+# PX4_GZ_WORLD=${PX4_GZ_WORLD:=default}
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=d4s_dc_drone}
+
+param set-default SIM_GZ_EN 1
+
+param set-default SENS_EN_GPSSIM 1
+param set-default SENS_EN_BAROSIM 1
+param set-default EKF2_ABL_LIM 0.8
+param set-default COM_RC_IN_MODE 1
+# QGroundControl joystick updates can stall for several seconds under simulation load.
+param set-default COM_RC_LOSS_T 5.0
+param set-default NAV_RCL_ACT 0
+
+param set-default BAT1_N_CELLS 6
+param set-default SIM_BAT_ENABLE 1
+param set-default SIM_BAT_DRAIN 300
+param set-default SIM_BAT_MIN_PCT 20
+param set-default SIM_BAT_CAP_WH 2
+param set-default SIM_BAT_CHG_EFF 0.9
+param set-default SIM_BAT_CHG_MAX 250
+param set-default SIM_BAT_CHG_TOUT 1
+param set-default SIM_BAT_INIT_PCT 100
+param set-default SIM_BAT_RESET 0
+
+param set-default CA_AIRFRAME 0
+param set-default CA_ROTOR_COUNT 4
+
+param set-default CA_ROTOR0_PX 0.21
+param set-default CA_ROTOR0_PY 0.21
+param set-default CA_ROTOR0_KM 0.05
+
+param set-default CA_ROTOR1_PX -0.21
+param set-default CA_ROTOR1_PY -0.21
+param set-default CA_ROTOR1_KM 0.05
+
+param set-default CA_ROTOR2_PX 0.21
+param set-default CA_ROTOR2_PY -0.21
+param set-default CA_ROTOR2_KM -0.05
+
+param set-default CA_ROTOR3_PX -0.21
+param set-default CA_ROTOR3_PY 0.21
+param set-default CA_ROTOR3_KM -0.05
+
+# param set-default PWM_MAIN_FUNC1 101
+# param set-default PWM_MAIN_FUNC2 102
+# param set-default PWM_MAIN_FUNC3 103
+# param set-default PWM_MAIN_FUNC4 104
+
+param set-default SIM_GZ_EC_FUNC1 101
+param set-default SIM_GZ_EC_FUNC2 102
+param set-default SIM_GZ_EC_FUNC3 103
+param set-default SIM_GZ_EC_FUNC4 104
+
+param set-default SIM_GZ_EC_MIN1 100
+param set-default SIM_GZ_EC_MIN2 100
+param set-default SIM_GZ_EC_MIN3 100
+param set-default SIM_GZ_EC_MIN4 100
+
+param set-default SIM_GZ_EC_MAX1 1100
+param set-default SIM_GZ_EC_MAX2 1100
+param set-default SIM_GZ_EC_MAX3 1100
+param set-default SIM_GZ_EC_MAX4 1100
+
+#param set-default MPC_THR_HOVER 0.60

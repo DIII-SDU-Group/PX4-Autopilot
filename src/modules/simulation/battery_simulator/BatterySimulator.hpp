@@ -71,6 +71,7 @@ public:
 private:
 	void Run() override;
 	void updateCommands();
+	void resetBatteryState(hrt_abstime now_us);
 
 	static constexpr uint32_t BATTERY_SIMLATOR_SAMPLE_FREQUENCY_HZ = 100; // Hz
 	static constexpr uint32_t BATTERY_SIMLATOR_SAMPLE_INTERVAL_US = 1_s / BATTERY_SIMLATOR_SAMPLE_FREQUENCY_HZ;
@@ -87,6 +88,7 @@ private:
 	uint64_t _last_integration_us{0};
 	float _battery_percentage{1.f};
 	bool _armed{false};
+	int32_t _last_reset_token{0};
 
 	bool _force_empty_battery{false};
 	sim_battery_charge_s _sim_battery_charge{};
@@ -100,6 +102,8 @@ private:
 		(ParamFloat<px4::params::SIM_BAT_CAP_WH>) _param_sim_bat_cap_wh, ///< battery capacity in Wh
 		(ParamFloat<px4::params::SIM_BAT_CHG_EFF>) _param_sim_bat_chg_eff, ///< charging efficiency
 		(ParamFloat<px4::params::SIM_BAT_CHG_MAX>) _param_sim_bat_chg_max, ///< max charging power
-		(ParamFloat<px4::params::SIM_BAT_CHG_TOUT>) _param_sim_bat_chg_tout ///< charging input timeout
+		(ParamFloat<px4::params::SIM_BAT_CHG_TOUT>) _param_sim_bat_chg_tout, ///< charging input timeout
+		(ParamFloat<px4::params::SIM_BAT_INIT_PCT>) _param_sim_bat_init_pct, ///< reset battery percentage
+		(ParamInt<px4::params::SIM_BAT_RESET>) _param_sim_bat_reset ///< reset request token
 	)
 };

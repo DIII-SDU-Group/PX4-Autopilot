@@ -120,3 +120,40 @@ PARAM_DEFINE_FLOAT(SIM_BAT_CHG_MAX, 250.0f);
  * @group SITL
  */
 PARAM_DEFINE_FLOAT(SIM_BAT_CHG_TOUT, 1.0f);
+
+/**
+ * Simulator battery reset percentage.
+ *
+ * Battery percentage applied at simulator startup and whenever SIM_BAT_RESET changes.
+ *
+ * @min 0
+ * @max 100
+ * @increment 0.1
+ * @unit %
+ *
+ * @group SITL
+ */
+PARAM_DEFINE_FLOAT(SIM_BAT_INIT_PCT, 100.0f);
+
+/**
+ * Simulator battery reset request token.
+ *
+ * Changing this value resets the simulated battery to SIM_BAT_INIT_PCT.
+ *
+ * @min 0
+ * @max 2147483647
+ * @group SITL
+ */
+PARAM_DEFINE_INT32(SIM_BAT_RESET, 0);
+
+/**
+ * Simulator battery reset acknowledgement token.
+ *
+ * The battery simulator copies SIM_BAT_RESET here after applying the requested
+ * percentage. This parameter is read-only by convention.
+ *
+ * @min 0
+ * @max 2147483647
+ * @group SITL
+ */
+PARAM_DEFINE_INT32(SIM_BAT_RST_ACK, 0);

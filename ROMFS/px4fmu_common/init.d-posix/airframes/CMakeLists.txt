@@ -117,4 +117,5 @@ px4_add_romfs_files(
 	71002_gz_spacecraft_2d
 
 	# [22000, 22999] Reserve for custom models
+	99999_gz_d4s_dc_drone
 )
