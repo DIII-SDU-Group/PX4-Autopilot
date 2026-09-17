@@ -80,6 +80,9 @@ publications:
   - topic: /fmu/out/vehicle_local_position
     type: px4_msgs::msg::VehicleLocalPosition
 
+  - topic: /fmu/out/vehicle_local_position_setpoint
+    type: px4_msgs::msg::VehicleLocalPositionSetpoint
+
   - topic: /fmu/out/vehicle_odometry
     type: px4_msgs::msg::VehicleOdometry
 
