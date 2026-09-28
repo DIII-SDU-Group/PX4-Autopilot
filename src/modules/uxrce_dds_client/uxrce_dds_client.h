@@ -53,7 +53,12 @@
 #include "srv_base.h"
 
 #define MAX_NUM_REPLIERS 5
-#define STREAM_HISTORY  4
+// Commander supports up to eight simultaneous external health-check
+// registrations. Each registration replies to the same periodic request, so
+// the reliable XRCE stream must be able to hold the complete reply burst.
+// A smaller history causes head-of-line delay beyond commander's 50 ms health
+// deadline once more than four ROS mode components are registered.
+#define STREAM_HISTORY  8
 #define BUFFER_SIZE (UXR_CONFIG_SERIAL_TRANSPORT_MTU * STREAM_HISTORY) // MTU==512 by default
 
 class UxrceddsClient : public ModuleBase<UxrceddsClient>, public ModuleParams
@@ -197,6 +202,8 @@ private:
 	bool _connected{false};
 	bool _session_created{false};
 	bool _timesync_converged{false};
+	uint32_t _diagnostic_session_generation{0};
+	uint32_t _diagnostic_entity_generation{0};
 
 	Timesync _timesync{timesync_status_s::SOURCE_PROTOCOL_DDS};
 

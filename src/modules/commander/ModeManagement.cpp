@@ -312,7 +312,7 @@ void ModeManagement::checkNewRegistrations(UpdateRequest &update_request)
 
 				if (request.register_arming_check) {
 					int8_t replace_nav_state = request.enable_replace_internal_mode ? request.replace_internal_mode : -1;
-					int registration_id = _external_checks.addRegistration(nav_mode_id, replace_nav_state);
+					int registration_id = _external_checks.addRegistration(nav_mode_id, replace_nav_state, request.name);
 
 					if (nav_mode_id != -1) {
 						_modes.mode(nav_mode_id).arming_check_registration_id = registration_id;

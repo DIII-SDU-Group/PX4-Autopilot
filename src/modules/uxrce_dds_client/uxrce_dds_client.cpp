@@ -211,8 +211,11 @@ void UxrceddsClient::deinit()
 
 bool UxrceddsClient::setupSession(uxrSession *session)
 {
+	const uint32_t session_generation = ++_diagnostic_session_generation;
 	_participant_config = static_cast<ParticipantConfig>(_param_uxrce_dds_ptcfg.get());
 	_synchronize_timestamps = (_param_uxrce_dds_synct.get() > 0);
+	PX4_INFO("[HIL-WO003] XRCE session setup begin generation=%lu key=%lu", (unsigned long)session_generation,
+		 (unsigned long)_param_uxrce_key.get());
 
 	bool got_response = false;
 
@@ -243,6 +246,7 @@ bool UxrceddsClient::setupSession(uxrSession *session)
 	}
 
 	_session_created = true;
+	PX4_INFO("[HIL-WO003] XRCE session created generation=%lu", (unsigned long)session_generation);
 
 	// Streams
 	// Reliable for setup, afterwards best-effort to send the data (important: need to create all 4 streams)
@@ -323,6 +327,10 @@ bool UxrceddsClient::setupSession(uxrSession *session)
 		return false;
 	}
 
+	const uint32_t entity_generation = ++_diagnostic_entity_generation;
+	PX4_INFO("[HIL-WO003] XRCE entities created session_generation=%lu entity_generation=%lu",
+		 (unsigned long)session_generation, (unsigned long)entity_generation);
+
 	// Set time-callback.
 	if (_synchronize_timestamps) {
 		uxr_set_time_callback(session, on_time, &_timesync);
@@ -381,11 +389,16 @@ bool UxrceddsClient::setupSession(uxrSession *session)
 	}
 
 	_connected = true;
+	PX4_INFO("[HIL-WO003] XRCE session connected session_generation=%lu entity_generation=%lu",
+		 (unsigned long)session_generation, (unsigned long)entity_generation);
 	return true;
 }
 
 void UxrceddsClient::deleteSession(uxrSession *session)
 {
+	PX4_INFO("[HIL-WO003] XRCE session delete begin session_generation=%lu entity_generation=%lu connected=%u created=%u",
+		 (unsigned long)_diagnostic_session_generation, (unsigned long)_diagnostic_entity_generation,
+		 _connected ? 1u : 0u, _session_created ? 1u : 0u);
 	delete_repliers();
 
 	if (_session_created) {
@@ -395,6 +408,8 @@ void UxrceddsClient::deleteSession(uxrSession *session)
 
 	_last_payload_tx_rate = 0;
 	_timesync.reset_filter();
+	PX4_INFO("[HIL-WO003] XRCE session delete end session_generation=%lu entity_generation=%lu",
+		 (unsigned long)_diagnostic_session_generation, (unsigned long)_diagnostic_entity_generation);
 }
 
 UxrceddsClient::~UxrceddsClient()
@@ -547,7 +562,10 @@ void UxrceddsClient::checkConnectivity(uxrSession *session)
 		}
 
 		if (_num_pings_missed >= 3) {
-			PX4_ERR("No ping response, disconnecting");
+			if (_connected) {
+				PX4_ERR("[HIL-WO003] XRCE disconnect session_generation=%lu entity_generation=%lu reason=no_ping",
+					(unsigned long)_diagnostic_session_generation, (unsigned long)_diagnostic_entity_generation);
+			}
 			_connected = false;
 		}
 
@@ -556,11 +574,19 @@ void UxrceddsClient::checkConnectivity(uxrSession *session)
 
 		if (tx_timeout > 0 && _num_tx_rate_zero >= tx_timeout) {
 			PX4_ERR("Payload TX rate zero for too long, disconnecting");
+			if (_connected) {
+				PX4_ERR("[HIL-WO003] XRCE disconnect session_generation=%lu entity_generation=%lu reason=tx_zero",
+					(unsigned long)_diagnostic_session_generation, (unsigned long)_diagnostic_entity_generation);
+			}
 			_connected = false;
 		}
 
 		if (rx_timeout > 0 && _num_rx_rate_zero >= rx_timeout) {
 			PX4_ERR("Payload RX rate zero for too long, disconnecting");
+			if (_connected) {
+				PX4_ERR("[HIL-WO003] XRCE disconnect session_generation=%lu entity_generation=%lu reason=rx_zero",
+					(unsigned long)_diagnostic_session_generation, (unsigned long)_diagnostic_entity_generation);
+			}
 			_connected = false;
 		}
 	}
