@@ -66,6 +66,7 @@ struct SendSubscription {
 	uint32_t message_version;
 	uint32_t topic_size;
 	UcdrSerializeMethod ucdr_serialize_method;
+	bool reliable;
 };
 
 // Subscribers for messages to send
@@ -79,6 +80,7 @@ struct SendTopicsSubs {
 			  get_message_version<@(pub['simple_base_type'])_s>(),
 			  ucdr_topic_size_@(pub['simple_base_type'])(),
 			  &ucdr_serialize_@(pub['simple_base_type']),
+			  @('true' if pub.get('reliable', False) else 'false'),
 			},
 @[    end for]@
 	};
@@ -103,7 +105,8 @@ bool SendTopicsSubs::init(uxrSession *session, uxrStreamId reliable_out_stream_i
 
 		if (!create_data_writer(session, reliable_out_stream_id, participant_id, static_cast<ORB_ID>(send_subscriptions[idx].orb_meta->o_id), client_namespace, send_subscriptions[idx].topic,
 								   send_subscriptions[idx].message_version,
-								   send_subscriptions[idx].dds_type_name, send_subscriptions[idx].data_writer)) {
+								   send_subscriptions[idx].dds_type_name, send_subscriptions[idx].data_writer,
+								   send_subscriptions[idx].reliable)) {
 			ret = false;
 		}
 	}
@@ -134,7 +137,10 @@ void SendTopicsSubs::update(uxrSession *session, uxrStreamId reliable_out_stream
 
 				ucdrBuffer ub;
 				uint32_t topic_size = send_subscriptions[idx].topic_size;
-				if (uxr_prepare_output_stream(session, best_effort_stream_id, send_subscriptions[idx].data_writer, &ub, topic_size) != UXR_INVALID_REQUEST_ID) {
+				const uxrStreamId stream_id = send_subscriptions[idx].reliable
+					? reliable_out_stream_id
+					: best_effort_stream_id;
+				if (uxr_prepare_output_stream(session, stream_id, send_subscriptions[idx].data_writer, &ub, topic_size) != UXR_INVALID_REQUEST_ID) {
 					send_subscriptions[idx].ucdr_serialize_method(&topic_data, ub, time_offset_us);
 					// TODO: fill up the MTU and then flush, which reduces the packet overhead
 					uxr_flash_output_streams(session);
@@ -200,7 +206,9 @@ bool RcvTopicsPubs::init(uxrSession *session, uxrStreamId reliable_out_stream_id
 	{
 			uint16_t queue_depth = orb_get_queue_size(ORB_ID(@(sub['simple_base_type']))) * 2; // use a bit larger queue size than internal
 			uint32_t message_version = get_message_version<@(sub['simple_base_type'])_s>();
-			create_data_reader(session, reliable_out_stream_id, best_effort_in_stream_id, participant_id, @(idx), client_namespace, "@(sub['topic'])", message_version, "@(sub['dds_type'])", queue_depth);
+			const uxrStreamId input_stream_id = @('reliable_in_stream_id' if sub.get('reliable', False) else 'best_effort_in_stream_id');
+			create_data_reader(session, reliable_out_stream_id, input_stream_id, participant_id, @(idx), client_namespace, "@(sub['topic'])", message_version, "@(sub['dds_type'])", queue_depth,
+						   @('true' if sub.get('reliable', False) else 'false'));
 	}
 @[    end for]@
 

@@ -7,12 +7,15 @@ publications:
 
   - topic: /fmu/out/register_ext_component_reply
     type: px4_msgs::msg::RegisterExtComponentReply
+    reliable: true
 
   - topic: /fmu/out/arming_check_request
     type: px4_msgs::msg::ArmingCheckRequest
+    reliable: true
 
   - topic: /fmu/out/mode_completed
     type: px4_msgs::msg::ModeCompleted
+    reliable: true
 
   - topic: /fmu/out/battery_status
     type: px4_msgs::msg::BatteryStatus
@@ -70,6 +73,7 @@ publications:
 
   - topic: /fmu/out/vehicle_command_ack
     type: px4_msgs::msg::VehicleCommandAck
+    reliable: true
 
   - topic: /fmu/out/vehicle_global_position
     type: px4_msgs::msg::VehicleGlobalPosition
@@ -79,6 +83,9 @@ publications:
 
   - topic: /fmu/out/vehicle_local_position
     type: px4_msgs::msg::VehicleLocalPosition
+
+  - topic: /fmu/out/vehicle_local_position_setpoint
+    type: px4_msgs::msg::VehicleLocalPositionSetpoint
 
   - topic: /fmu/out/vehicle_odometry
     type: px4_msgs::msg::VehicleOdometry
@@ -99,21 +106,26 @@ publications:
 subscriptions:
   - topic: /fmu/in/register_ext_component_request
     type: px4_msgs::msg::RegisterExtComponentRequest
+    reliable: true
 
   - topic: /fmu/in/unregister_ext_component
     type: px4_msgs::msg::UnregisterExtComponent
+    reliable: true
 
   - topic: /fmu/in/config_overrides_request
     type: px4_msgs::msg::ConfigOverrides
 
   - topic: /fmu/in/arming_check_reply
     type: px4_msgs::msg::ArmingCheckReply
+    reliable: true
 
   - topic: /fmu/in/message_format_request
     type: px4_msgs::msg::MessageFormatRequest
+    reliable: true
 
   - topic: /fmu/in/mode_completed
     type: px4_msgs::msg::ModeCompleted
+    reliable: true
 
   - topic: /fmu/in/config_control_setpoints
     type: px4_msgs::msg::VehicleControlMode
