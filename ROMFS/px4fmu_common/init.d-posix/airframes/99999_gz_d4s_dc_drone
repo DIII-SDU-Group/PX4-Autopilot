@@ -74,4 +74,7 @@ param set-default SIM_GZ_EC_MAX2 1100
 param set-default SIM_GZ_EC_MAX3 1100
 param set-default SIM_GZ_EC_MAX4 1100
 
-#param set-default MPC_THR_HOVER 0.60
+# Thrust this model needs to hover (PX4 hover-thrust estimate in steady
+# flight: 0.698-0.699). PX4 resets its estimate to this value on every disarm,
+# so every takeoff from the cable starts from it.
+param set-default MPC_THR_HOVER 0.70
