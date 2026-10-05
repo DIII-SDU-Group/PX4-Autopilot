@@ -12,6 +12,15 @@
 PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
 PX4_GZ_WORLD=${PX4_GZ_WORLD:=hca_full_pylon_setup}
 # PX4_GZ_WORLD=${PX4_GZ_WORLD:=default}
+# PX4 spawns the vehicle at the world origin, where hca_full_pylon_setup's
+# terrain lies 3.0 cm lower. The vehicle then drops onto it while PX4 starts,
+# and the EKF initialises on the landing impact: a 0.1 m/s^2 horizontal
+# accelerometer bias, indistinguishable from tilt on the ground, that leaves
+# the attitude 0.01 rad (and, through the magnetometer, the heading up to
+# 0.04 rad) off until minutes into the first flight. Spawn at rest instead.
+if [ "$PX4_GZ_WORLD" = "hca_full_pylon_setup" ]; then
+	PX4_GZ_MODEL_POSE=${PX4_GZ_MODEL_POSE:=0,0,-0.028}
+fi
 PX4_SIM_MODEL=${PX4_SIM_MODEL:=d4s_dc_drone}
 
 param set-default SIM_GZ_EN 1
