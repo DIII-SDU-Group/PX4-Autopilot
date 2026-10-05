@@ -19,6 +19,17 @@ param set-default SIM_GZ_EN 1
 param set-default SENS_EN_GPSSIM 1
 param set-default SENS_EN_BAROSIM 1
 param set-default EKF2_ABL_LIM 0.8
+# Gazebo's magnetometer field has a declination of +3.12 deg at this world's
+# location (hca_full_pylon_setup, Odense; gz-sim's tables), where PX4's world
+# magnetic model gives +4.30 deg. EKF2_DECL_TYPE 2 makes the EKF use
+# EKF2_MAG_DECL (III's PX4 keeps that value instead of overwriting it with the
+# model's). Set, not defaulted: earlier boots saved the model's value.
+param set EKF2_DECL_TYPE 2
+param set EKF2_MAG_DECL 3.12
+# The simulated magnetometer has no bias: fuse its heading rather than learning
+# earth-field and bias states, which a hovering vehicle cannot observe and
+# which left the heading 0.02 rad off truth.
+param set-default EKF2_MAG_TYPE 1
 param set-default COM_RC_IN_MODE 1
 # QGroundControl joystick updates can stall for several seconds under simulation load.
 param set-default COM_RC_LOSS_T 5.0
