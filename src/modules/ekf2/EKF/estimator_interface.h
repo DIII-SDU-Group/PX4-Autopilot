@@ -259,7 +259,10 @@ public:
 	// At the next startup, set param.mag_declination_deg to the value saved
 	bool get_mag_decl_deg(float &val) const
 	{
-		if (PX4_ISFINITE(_wmm_declination_rad) && (_params.mag_declination_source & GeoDeclinationMask::SAVE_GEO_DECL)) {
+		// Without USE_GEO_DECL, EKF2_MAG_DECL is the declination in use and must
+		// not be overwritten by the geo lookup.
+		if (PX4_ISFINITE(_wmm_declination_rad) && (_params.mag_declination_source & GeoDeclinationMask::USE_GEO_DECL)
+		    && (_params.mag_declination_source & GeoDeclinationMask::SAVE_GEO_DECL)) {
 			val = math::degrees(_wmm_declination_rad);
 			return true;
 
